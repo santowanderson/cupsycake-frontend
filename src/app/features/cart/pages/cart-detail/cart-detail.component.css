@@ -109,7 +109,7 @@ h2 {
   padding: 0 0.75rem;
   font-weight: 700;
   font-size: 0.95rem;
-  color: var(--rose-900) !important; /* Força a cor visível do texto */
+  color: var(--rose-900) !important;
   min-width: 32px;
   text-align: center;
   display: inline-block;
