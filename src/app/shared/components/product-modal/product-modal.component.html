@@ -1,0 +1,52 @@
+@if (modalService.isOpen()) {
+  <div
+    class="modal-backdrop"
+    [class.closing]="isClosing"
+    (click)="onBackdropClick()"
+  >
+    <div
+      class="modal-container"
+      [class.closing]="isClosing"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Botão de Fechar -->
+      <button
+        class="close-button"
+        (click)="closeModal()"
+        aria-label="Fechar modal"
+      >
+        &times;
+      </button>
+
+      @if (modalService.selectedProduct(); as product) {
+        <!-- Parte Superior: Imagem -->
+        <div class="modal-image-wrapper">
+          <img [src]="getImageUrl(product)" [alt]="product.name" />
+        </div>
+
+        <!-- Parte Inferior: Informações -->
+        <div class="modal-content-wrapper">
+          <h2>{{ product.name }}</h2>
+          <p class="modal-price">
+            {{ product.price | currency: "BRL" : "symbol" : "1.2-2" }}
+          </p>
+
+          <div class="info-section">
+            <h3>Descrição</h3>
+            <p>{{ product.description || "Nenhuma descrição informada." }}</p>
+          </div>
+
+          <div class="info-section">
+            <h3>Ingredientes</h3>
+            <p>
+              {{
+                product.ingredients ||
+                  "Informações de ingredientes não disponíveis."
+              }}
+            </p>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}

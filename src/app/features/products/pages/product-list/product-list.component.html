@@ -1,0 +1,70 @@
+<div class="container">
+  <!-- Seção de Filtros por Tags -->
+  <section class="filters">
+    <button
+      (click)="toggleFilter('sem-lactose')"
+      [class.active]="isTagActive('sem-lactose')"
+    >
+      Sem Lactose
+    </button>
+    <button
+      (click)="toggleFilter('sem-glutem')"
+      [class.active]="isTagActive('sem-glutem')"
+    >
+      Sem Glúten
+    </button>
+    <button
+      (click)="toggleFilter('vegano')"
+      [class.active]="isTagActive('vegano')"
+    >
+      Vegano
+    </button>
+  </section>
+
+  <!-- Grade de Cupcakes (Catálogo Paginado) -->
+  <div class="product-grid">
+    @for (product of paginatedProducts(); track product.id) {
+      <app-product-card [product]="product" />
+    } @empty {
+      <!-- Estado vazio caso nenhum cupcake corresponda aos filtros -->
+      <div class="no-products-state">
+        <p>Nenhum cupcake encontrado com os filtros selecionados.</p>
+      </div>
+    }
+  </div>
+
+  <!-- Controles de Paginação (Oculto se quantidade <= limite por página) -->
+  @if (showPagination()) {
+    <nav class="pagination-container" aria-label="Navegação de páginas">
+      <button
+        class="pagination-btn"
+        [disabled]="currentPage() === 1"
+        (click)="changePage(currentPage() - 1)"
+        aria-label="Página anterior"
+      >
+        &larr; Anterior
+      </button>
+
+      <div class="pagination-numbers">
+        @for (page of pagesArray(); track page) {
+          <button
+            class="page-number-btn"
+            [class.active]="currentPage() === page"
+            (click)="changePage(page)"
+          >
+            {{ page }}
+          </button>
+        }
+      </div>
+
+      <button
+        class="pagination-btn"
+        [disabled]="currentPage() === totalPages()"
+        (click)="changePage(currentPage() + 1)"
+        aria-label="Próxima página"
+      >
+        Próxima &rarr;
+      </button>
+    </nav>
+  }
+</div>

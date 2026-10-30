@@ -1,0 +1,53 @@
+<header class="header">
+  <div class="auth-container">
+    @if (authService.isAuthenticated()) {
+      <!-- Dropdown do Usuário Logado -->
+      <div class="profile-dropdown-container">
+        <button
+          class="profile-btn"
+          (click)="toggleDropdown($event)"
+          aria-label="Abrir menu do usuário"
+        >
+          <div class="avatar-circle">
+            {{ authService.currentUser()?.first_name?.charAt(0) | uppercase }}
+          </div>
+        </button>
+
+        @if (isDropdownOpen()) {
+          <div class="dropdown-menu" (click)="$event.stopPropagation()">
+            <div class="user-info">
+              <span class="user-name">{{
+                authService.currentUser()?.first_name
+              }}</span>
+              <span class="user-email">{{
+                authService.currentUser()?.email
+              }}</span>
+            </div>
+
+            <hr class="dropdown-divider" />
+
+            <a
+              routerLink="/orders"
+              class="dropdown-item"
+              (click)="closeDropdown()"
+            >
+              Meus pedidos
+            </a>
+
+            <button class="dropdown-item logout-btn" (click)="logout()">
+              Sair
+            </button>
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- Botão de Entrar (Usuário Deslogado) -->
+      <a routerLink="/auth/login" class="btn-login-nav">Entrar</a>
+    }
+  </div>
+
+  <a routerLink="" class="brand-link">
+    <h1>CupsCake</h1>
+  </a>
+  <p>Doces artesanais feitos com amor</p>
+</header>

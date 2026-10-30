@@ -1,0 +1,107 @@
+<div class="orders-container">
+  <h2>Meus Pedidos</h2>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <p>Carregando seus pedidos...</p>
+    </div>
+  } @else if (errorMessage()) {
+    <div class="error-alert">
+      {{ errorMessage() }}
+    </div>
+  } @else {
+    @if (orders().length > 0) {
+      <!-- Filtro por Ano -->
+      <div class="filter-section">
+        <span class="filter-label">Filtrar por ano:</span>
+        <div class="year-chips">
+          @for (year of availableYears(); track year) {
+            <button
+              class="year-chip"
+              [class.active]="selectedYear() === year"
+              (click)="filterByYear(year)"
+            >
+              {{ year === "ALL" ? "Todos" : year }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Lista de Pedidos -->
+      <div class="orders-list">
+        @for (order of filteredOrders(); track order.id) {
+          <div class="order-card">
+            <div class="order-header">
+              <div class="order-meta">
+                <span class="order-id">Pedido #{{ order.id }}</span>
+                <span class="order-date">{{
+                  order.created_at | date: "dd/MM/yyyy HH:mm"
+                }}</span>
+              </div>
+              <span class="order-status" [class]="order.status.toLowerCase()">
+                {{ order.status }}
+              </span>
+            </div>
+
+            <div class="order-items">
+              @for (item of order.items; track item.id) {
+                <div class="order-item-row">
+                  <!-- Imagem com fallback automático para 404 -->
+                  <img
+                    #imgElement
+                    [src]="imageUrl(item.product_id)"
+                    [alt]="item.product_name"
+                    class="item-thumb"
+                  />
+                  <div class="item-info">
+                    <h4>{{ item.product_name }}</h4>
+                    <span
+                      >Qtd: {{ item.quantity }}x • R$
+                      {{ formatPrice(item.unit_price) }} un.</span
+                    >
+                  </div>
+                  <div class="item-total">
+                    R$ {{ formatPrice(item.unit_price * item.quantity) }}
+                  </div>
+                </div>
+              }
+            </div>
+
+            @if (order.notes) {
+              <div class="order-notes">
+                <strong>Observações:</strong> {{ order.notes }}
+              </div>
+            }
+
+            <div class="order-footer">
+              <div class="shipping-info">
+                <span
+                  >Taxa de Entrega: R$
+                  {{ formatPrice(order.shipping_fee) }}</span
+                >
+              </div>
+              <div class="order-total-amount">
+                <span>Total:</span>
+                <strong>R$ {{ formatPrice(order.total_amount) }}</strong>
+              </div>
+            </div>
+          </div>
+        } @empty {
+          <div class="empty-filter-state">
+            <p>Nenhum pedido encontrado para o ano selecionado.</p>
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- Estado Vazio (Nunca realizou pedidos) -->
+      <div class="empty-orders">
+        <div class="empty-icon">📦</div>
+        <h3>Você ainda não fez nenhum pedido</h3>
+        <p>
+          Explore nosso catálogo e saboreie os melhores cupcakes artesanais!
+        </p>
+        <a routerLink="/" class="shop-now-btn">Ver Cardápio</a>
+      </div>
+    }
+  }
+</div>

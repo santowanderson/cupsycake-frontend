@@ -1,0 +1,123 @@
+<div class="login-wrapper">
+  <div class="login-card">
+    <div class="login-header">
+      <h2>Acessar Conta</h2>
+      <p>Informe suas credenciais para entrar na plataforma</p>
+    </div>
+
+    <form
+      [formGroup]="loginForm"
+      (ngSubmit)="onSubmit()"
+      class="login-form"
+      novalidate
+    >
+      @if (errorMessage()) {
+        <div class="alert-error" role="alert">
+          {{ errorMessage() }}
+        </div>
+      }
+      <!-- Campo de E-mail -->
+      <div class="form-group">
+        <label for="email">E-mail</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="seu.email@exemplo.com"
+          [class.invalid]="isFieldInvalid('email')"
+        />
+        @if (isFieldInvalid("email")) {
+          <span class="error-message">
+            @if (loginForm.get("email")?.hasError("required")) {
+              O e-mail é obrigatório.
+            } @else if (loginForm.get("email")?.hasError("invalidEmail")) {
+              Informe um e-mail válido (exemplo&#64;dominio.com).
+            }
+          </span>
+        }
+      </div>
+
+      <!-- Campo de Senha -->
+      <div class="form-group">
+        <label for="senha">Senha</label>
+        <div class="input-wrapper">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            id="senha"
+            formControlName="senha"
+            placeholder="Digite sua senha"
+            [class.invalid]="isFieldInvalid('senha')"
+          />
+          <button
+            type="button"
+            class="toggle-password-btn"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="showPassword ? 'Ocultar senha' : 'Exibir senha'"
+          >
+            @if (showPassword) {
+              <!-- Ícone Olho Fechado -->
+              <svg
+                class="preview-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
+                ></path>
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+              </svg>
+            } @else {
+              <!-- Ícone Olho Aberto -->
+              <svg
+                class="preview-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            }
+          </button>
+        </div>
+
+        @if (isFieldInvalid("senha")) {
+          <span class="error-message">
+            @if (loginForm.get("senha")?.hasError("required")) {
+              A senha é obrigatória.
+            } @else if (loginForm.get("senha")?.hasError("passwordStrength")) {
+              A senha deve ter no mínimo 8 caracteres, contendo maiúscula,
+              minúscula, número e símbolo.
+            }
+          </span>
+        }
+      </div>
+
+      <!-- Botão de Login -->
+      <button type="submit" class="btn-login">Entrar</button>
+
+      <!-- Rodapé do Formulário -->
+      <div class="login-footer">
+        <p>
+          Ainda não tem conta?
+          <a routerLink="/auth/register" class="register-link"
+            >Cadastre-se aqui</a
+          >
+        </p>
+      </div>
+    </form>
+  </div>
+</div>
+
+<app-auth-error-modal
+  [isOpen]="isModalOpen()"
+  [errorMessage]="modalMessage()"
+  (closed)="isModalOpen.set(false)"
+/>

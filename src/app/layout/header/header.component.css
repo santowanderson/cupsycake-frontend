@@ -1,0 +1,182 @@
+.header {
+  background: white;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--rose-100);
+  text-align: center;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.auth-container {
+  position: absolute;
+  top: 1.5rem;
+  right: 2rem;
+}
+
+.btn-login-nav {
+  background: var(--red);
+  color: white;
+  padding: 0.5rem 1.25rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: opacity 0.2s;
+  display: inline-block;
+}
+
+.btn-login-nav:hover {
+  opacity: 0.9;
+}
+
+.brand-link {
+  display: inline-block;
+}
+
+.brand-link h1 {
+  font-size: 2.2rem;
+  color: var(--rose-900);
+  margin-bottom: 0.2rem;
+  font-weight: 800;
+}
+
+.header p {
+  font-size: 0.95rem;
+  color: var(--rose-500);
+}
+
+/* ==========================================
+   Menu Dropdown e Avatar de Perfil
+   ========================================== */
+.profile-dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.profile-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.avatar-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--red);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 5px rgba(225, 29, 72, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profile-btn:hover .avatar-circle {
+  transform: scale(1.06);
+  box-shadow: 0 4px 8px rgba(225, 29, 72, 0.35);
+}
+
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 50px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--rose-100);
+  width: 210px;
+  z-index: 1000;
+  text-align: left;
+  overflow: hidden;
+  animation: fadeIn 0.15s ease-out;
+}
+
+.user-info {
+  padding: 0.875rem 1rem;
+  background: var(--rose-50);
+}
+
+.user-name {
+  display: block;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--rose-900);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-email {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--rose-400);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-divider {
+  border: none;
+  height: 1px;
+  background: var(--rose-100);
+  margin: 0;
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--rose-900);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.dropdown-item:hover {
+  background: var(--rose-50);
+  color: var(--red);
+}
+
+.logout-btn {
+  color: var(--red);
+  border-top: 1px solid var(--rose-100);
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(-6px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 1rem;
+    padding-top: 3.5rem; 
+  }
+
+  .auth-container {
+    top: 0.75rem;
+    right: 1rem;
+  }
+
+  .brand-link h1 {
+    font-size: 1.8rem;
+  }
+
+  .header p {
+    font-size: 0.85rem;
+  }
+}

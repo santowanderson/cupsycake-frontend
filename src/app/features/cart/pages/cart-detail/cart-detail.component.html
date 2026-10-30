@@ -1,0 +1,123 @@
+<div class="cart-container">
+  <h2>Seu Carrinho de Cupcakes</h2>
+
+  @if (cartItems().length > 0) {
+    <div class="cart-layout">
+      <!-- Lista de Itens -->
+      <div class="cart-items-list">
+        @for (item of cartItems(); track item.product.id) {
+          <div class="cart-item-card">
+            <img
+              [src]="productService.getImageUrl(item.product.image_url)"
+              [alt]="item.product.name"
+              class="item-image"
+            />
+
+            <div class="item-details">
+              <h3>{{ item.product.name }}</h3>
+              <span class="item-price">
+                R$ {{ formatPrice(item.product.price) }} un.
+              </span>
+            </div>
+
+            <!-- Controles de Quantidade -->
+            <div class="quantity-controls">
+              <button
+                class="qty-btn"
+                (click)="updateQuantity(item.product.id, -1)"
+                aria-label="Diminuir quantidade"
+              >
+                -
+              </button>
+
+              <span class="qty-value" aria-label="Quantidade atual">
+                {{ item.quantity }}
+              </span>
+
+              <button
+                class="qty-btn"
+                (click)="updateQuantity(item.product.id, 1)"
+                aria-label="Aumentar quantidade"
+              >
+                +
+              </button>
+            </div>
+
+            <!-- Subtotal do item corrigido chamando o método da classe -->
+            <div class="item-subtotal">
+              <span>
+                R$ {{ getItemTotal(item.product.price, item.quantity) }}
+              </span>
+            </div>
+
+            <button
+              class="remove-btn"
+              (click)="removeItem(item.product.id)"
+              title="Remover item"
+            >
+              &times;
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Resumo do Pedido / Checkout -->
+      <div class="cart-summary">
+        <h3>Resumo do Pedido</h3>
+
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span>R$ {{ formatPrice(subtotal()) }}</span>
+        </div>
+
+        <div class="summary-row">
+          <span>Taxa de Entrega</span>
+          <span>R$ {{ formatPrice(shippingFee()) }}</span>
+        </div>
+
+        <div class="summary-divider"></div>
+
+        <div class="summary-row total">
+          <span>Total</span>
+          <span>R$ {{ formatPrice(totalAmount()) }}</span>
+        </div>
+
+        <div class="notes-group">
+          <label for="notes">Observações de Entrega (Opcional)</label>
+          <textarea
+            id="notes"
+            [(ngModel)]="deliveryNotes"
+            placeholder="Ex: Tocar campainha ao chegar, deixar na portaria..."
+            rows="3"
+          >
+          </textarea>
+        </div>
+
+        @if (errorMessage()) {
+          <div class="error-alert">
+            {{ errorMessage() }}
+          </div>
+        }
+
+        <button
+          class="checkout-btn"
+          [disabled]="isSubmitting()"
+          (click)="checkout()"
+        >
+          @if (isSubmitting()) {
+            Processando...
+          } @else {
+            Finalizar Pedido
+          }
+        </button>
+      </div>
+    </div>
+  } @else {
+    <!-- Estado Vazio do Carrinho -->
+    <div class="empty-cart">
+      <div class="empty-icon">🛒</div>
+      <p>Seu carrinho está vazio.</p>
+      <a routerLink="/" class="shop-now-btn">Escolher Cupcakes</a>
+    </div>
+  }
+</div>

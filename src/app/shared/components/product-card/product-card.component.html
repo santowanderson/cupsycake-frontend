@@ -1,0 +1,30 @@
+<div class="product-card">
+  <!-- Contêiner da imagem -->
+  <div class="image-container" (click)="openModal()" role="button" tabindex="0">
+    <!-- Utilizando a função reutilizável do ProductService passando o valor do sinal product() -->
+    <img [src]="productService.getImageUrl(product())" [alt]="product().name" />
+
+    <!-- Tags flutuantes encapsuladas no componente ProductTagBadgeComponent -->
+    @if (product().tags && product().tags.length > 0) {
+      <div class="tags-overlay">
+        <app-product-tag-badge [product]="product()" />
+      </div>
+    }
+  </div>
+
+  <div class="product-info">
+    <h3>{{ product().name }}</h3>
+    <p class="price">
+      {{ product().price | currency: "BRL" : "symbol" : "1.2-2" }}
+    </p>
+
+    <button
+      class="btn-add"
+      [class.added]="isAdding"
+      [disabled]="isAdding"
+      (click)="addToCart($event)"
+    >
+      {{ isAdding ? "Adicionado ao carrinho" : "Adicionar ao Carrinho" }}
+    </button>
+  </div>
+</div>

@@ -1,0 +1,393 @@
+<div class="register-wrapper">
+  <div class="register-card">
+    <div class="register-header">
+      <h2>Criar sua Conta</h2>
+      <p>Preencha os dados abaixo para se cadastrar na plataforma</p>
+    </div>
+
+    <form
+      [formGroup]="registerForm"
+      (ngSubmit)="onSubmit()"
+      class="register-form"
+      novalidate
+    >
+      <!-- SEÇÃO 1: DADOS PESSOAIS -->
+      <h3 class="section-title">Dados Pessoais</h3>
+
+      <div class="form-grid">
+        <!-- Nome -->
+        <div class="form-group">
+          <label for="first_name">Nome</label>
+          <input
+            id="first_name"
+            type="text"
+            formControlName="first_name"
+            placeholder="Seu nome"
+            [class.invalid]="isFieldInvalid('first_name')"
+          />
+          @if (isFieldInvalid("first_name")) {
+            <span class="error-message"
+              >Nome é obrigatório (mín. 2 letras)</span
+            >
+          }
+        </div>
+
+        <!-- Sobrenome -->
+        <div class="form-group">
+          <label for="last_name">Sobrenome</label>
+          <input
+            id="last_name"
+            type="text"
+            formControlName="last_name"
+            placeholder="Seu sobrenome"
+            [class.invalid]="isFieldInvalid('last_name')"
+          />
+          @if (isFieldInvalid("last_name")) {
+            <span class="error-message">Sobrenome é obrigatório</span>
+          }
+        </div>
+
+        <!-- CPF -->
+        <div class="form-group">
+          <label for="cpf">CPF</label>
+          <input
+            id="cpf"
+            type="text"
+            formControlName="cpf"
+            placeholder="000.000.000-00"
+            [class.invalid]="isFieldInvalid('cpf')"
+          />
+          @if (isFieldInvalid("cpf")) {
+            <span class="error-message">
+              @if (registerForm.get("cpf")?.hasError("required")) {
+                CPF é obrigatório.
+              } @else if (registerForm.get("cpf")?.hasError("invalidCpf")) {
+                CPF inválido. Verifique os dígitos.
+              }
+            </span>
+          }
+        </div>
+
+        <!-- E-mail -->
+        <div class="form-group">
+          <label for="email">E-mail</label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="seu.email@exemplo.com"
+            [class.invalid]="isFieldInvalid('email')"
+          />
+          @if (isFieldInvalid("email")) {
+            <span class="error-message">
+              @if (registerForm.get("email")?.hasError("required")) {
+                E-mail é obrigatório.
+              } @else if (registerForm.get("email")?.hasError("invalidEmail")) {
+                Informe um e-mail válido (exemplo&#64;dominio.com).
+              }
+            </span>
+          }
+        </div>
+
+        <!-- Telefone -->
+        <div class="form-group">
+          <label for="telefone">Telefone</label>
+          <input
+            id="telefone"
+            type="tel"
+            formControlName="telefone"
+            placeholder="(11) 99999-9999"
+            [class.invalid]="isFieldInvalid('telefone')"
+          />
+          @if (isFieldInvalid("telefone")) {
+            <span class="error-message">Informe um telefone válido</span>
+          }
+        </div>
+
+        <!-- Gênero (Mapeado para o ENUM do MySQL) -->
+        <div class="form-group">
+          <label for="gender">Gênero</label>
+          <select
+            id="gender"
+            formControlName="gender"
+            [class.invalid]="isFieldInvalid('gender')"
+          >
+            <option value="" disabled selected>Selecione...</option>
+            <option value="MALE">Masculino</option>
+            <option value="FEMALE">Feminino</option>
+            <option value="OTHER">Outro</option>
+            <option value="NOT_SPECIFIED">Preferir não informar</option>
+          </select>
+          @if (isFieldInvalid("gender")) {
+            <span class="error-message">Selecione uma opção</span>
+          }
+        </div>
+
+        <!-- Data de Nascimento (Substitui idade estática para cálculo dinâmico) -->
+        <div class="form-group">
+          <label for="birth_date">Data de Nascimento</label>
+          <input
+            id="birth_date"
+            type="date"
+            formControlName="birth_date"
+            [class.invalid]="isFieldInvalid('birth_date')"
+          />
+          @if (isFieldInvalid("birth_date")) {
+            <span class="error-message">Data de nascimento obrigatória</span>
+          }
+        </div>
+
+        <!-- Senha com Lista de Requisitos de Segurança -->
+        <div class="form-group span-2">
+          <label for="password">Senha</label>
+          <div class="input-wrapper">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              id="password"
+              formControlName="password"
+              placeholder="Crie uma senha forte"
+              [class.invalid]="isFieldInvalid('password')"
+            />
+            <button
+              type="button"
+              class="toggle-password-btn"
+              (click)="togglePasswordVisibility()"
+              [attr.aria-label]="
+                showPassword ? 'Ocultar senha' : 'Exibir senha'
+              "
+            >
+              @if (showPassword) {
+                <svg
+                  class="preview-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"
+                  ></path>
+                  <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+              } @else {
+                <svg
+                  class="preview-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              }
+            </button>
+          </div>
+
+          <!-- Feedback dinâmico de Requisitos da Senha -->
+          @if (isFieldInvalid("password")) {
+            @if (registerForm.get("password")?.hasError("required")) {
+              <span class="error-message">Senha é obrigatória.</span>
+            } @else if (
+              registerForm.get("password")?.hasError("passwordStrength")
+            ) {
+              <div class="password-requirements">
+                <p class="error-message">
+                  A senha precisa atender aos seguintes requisitos:
+                </p>
+                <ul class="requirements-list">
+                  <li
+                    [class.met]="
+                      !registerForm.get('password')?.errors?.[
+                        'passwordStrength'
+                      ]?.hasMinLength
+                    "
+                  >
+                    Pelo menos 8 caracteres
+                  </li>
+                  <li
+                    [class.met]="
+                      !registerForm.get('password')?.errors?.[
+                        'passwordStrength'
+                      ]?.hasUpperCase
+                    "
+                  >
+                    Pelo menos 1 letra maiúscula
+                  </li>
+                  <li
+                    [class.met]="
+                      !registerForm.get('password')?.errors?.[
+                        'passwordStrength'
+                      ]?.hasLowerCase
+                    "
+                  >
+                    Pelo menos 1 letra minúscula
+                  </li>
+                  <li
+                    [class.met]="
+                      !registerForm.get('password')?.errors?.[
+                        'passwordStrength'
+                      ]?.hasNumeric
+                    "
+                  >
+                    Pelo menos 1 número
+                  </li>
+                  <li
+                    [class.met]="
+                      !registerForm.get('password')?.errors?.[
+                        'passwordStrength'
+                      ]?.hasSpecialChar
+                    "
+                  >
+                    Pelo menos 1 caractere especial (!&#64;#$%^&*)
+                  </li>
+                </ul>
+              </div>
+            }
+          }
+        </div>
+      </div>
+
+      <!-- SEÇÃO 2: ENDEREÇO -->
+      <h3 class="section-title">Endereço</h3>
+
+      <div formGroupName="address" class="form-grid">
+        <!-- CEP (zip_code) -->
+        <div class="form-group">
+          <label for="zip_code">CEP</label>
+          <input
+            id="zip_code"
+            type="text"
+            formControlName="zip_code"
+            placeholder="00000-000"
+            [class.invalid]="isFieldInvalid('zip_code', 'address')"
+          />
+          @if (isFieldInvalid("zip_code", "address")) {
+            <span class="error-message"
+              >CEP é obrigatório (Formato: 00000-000)</span
+            >
+          }
+        </div>
+
+        <!-- Estado / UF (state_code) -->
+        <div class="form-group">
+          <label for="state_code">Estado (UF)</label>
+          <select
+            id="state_code"
+            formControlName="state_code"
+            [class.invalid]="isFieldInvalid('state_code', 'address')"
+          >
+            <option value="" disabled selected>UF</option>
+            <option value="SP">SP - São Paulo</option>
+            <option value="RJ">RJ - Rio de Janeiro</option>
+            <option value="MG">MG - Minas Gerais</option>
+            <option value="RS">RS - Rio Grande do Sul</option>
+            <option value="PR">PR - Paraná</option>
+          </select>
+          @if (isFieldInvalid("state_code", "address")) {
+            <span class="error-message">Selecione o estado</span>
+          }
+        </div>
+
+        <!-- Rua e Número (street_address e number) -->
+        <div class="span-2 street-grid">
+          <div class="form-group">
+            <label for="street_address">Logradouro / Rua</label>
+            <input
+              id="street_address"
+              type="text"
+              formControlName="street_address"
+              placeholder="Rua, Avenida, etc."
+              [class.invalid]="isFieldInvalid('street_address', 'address')"
+            />
+            @if (isFieldInvalid("street_address", "address")) {
+              <span class="error-message">Rua é obrigatória</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="number">Número</label>
+            <input
+              id="number"
+              type="text"
+              formControlName="number"
+              placeholder="123"
+              [class.invalid]="isFieldInvalid('number', 'address')"
+            />
+            @if (isFieldInvalid("number", "address")) {
+              <span class="error-message">Obrigatório</span>
+            }
+          </div>
+        </div>
+
+        <!-- Bairro (neighborhood) -->
+        <div class="form-group">
+          <label for="neighborhood">Bairro</label>
+          <input
+            id="neighborhood"
+            type="text"
+            formControlName="neighborhood"
+            placeholder="Seu bairro"
+            [class.invalid]="isFieldInvalid('neighborhood', 'address')"
+          />
+          @if (isFieldInvalid("neighborhood", "address")) {
+            <span class="error-message">Bairro é obrigatório</span>
+          }
+        </div>
+
+        <!-- Cidade (city) -->
+        <div class="form-group">
+          <label for="city">Cidade</label>
+          <input
+            id="city"
+            type="text"
+            formControlName="city"
+            placeholder="Sua cidade"
+            [class.invalid]="isFieldInvalid('city', 'address')"
+          />
+          @if (isFieldInvalid("city", "address")) {
+            <span class="error-message">Cidade é obrigatória</span>
+          }
+        </div>
+
+        <!-- Complemento (complement) -->
+        <div class="form-group span-2">
+          <label for="complement">Complemento (opcional)</label>
+          <input
+            id="complement"
+            type="text"
+            formControlName="complement"
+            placeholder="Apto, Bloco, Ponto de referência"
+          />
+        </div>
+      </div>
+
+      @if (errorMessage()) {
+        <div class="alert-error" role="alert">
+          {{ errorMessage() }}
+        </div>
+      }
+
+      <!-- Botão de Envio -->
+      <button type="submit" [disabled]="isLoading()" class="btn-register">
+        @if (isLoading()) {
+          <span>Cadastrando...</span>
+        } @else {
+          <span>Concluir Cadastro</span>
+        }
+      </button>
+
+      <!-- Footer com Navegação SPA -->
+      <div class="register-footer">
+        <p>
+          Já possui uma conta?
+          <a routerLink="/auth/login" class="login-link">Faça Login</a>
+        </p>
+      </div>
+    </form>
+  </div>
+</div>

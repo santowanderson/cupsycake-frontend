@@ -1,0 +1,5 @@
+@for (tagInfo of processedTags(); track $index) {
+  <span class="product-tag-badge" [ngClass]="tagInfo.badgeClass">
+    {{ tagInfo.label }}
+  </span>
+}
