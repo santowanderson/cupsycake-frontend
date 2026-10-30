@@ -12,7 +12,7 @@ describe('CustomValidators', () => {
     it('should return null for empty, null, or whitespace values', () => {
       expect(validator(new FormControl(''))).toBeNull();
       expect(validator(new FormControl(null))).toBeNull();
-      expect(validator(new FormControl('   '))).toBeNull();
+      expect(validator(new FormControl('    '))).toBeNull();
     });
 
     it('should return null for valid email formats', () => {

@@ -47,7 +47,7 @@
           }
         </div>
 
-        <!-- CPF -->
+        <!-- CPF (Com máscara aplicada) -->
         <div class="form-group">
           <label for="cpf">CPF</label>
           <input
@@ -55,6 +55,8 @@
             type="text"
             formControlName="cpf"
             placeholder="000.000.000-00"
+            maxlength="14"
+            (input)="onCpfInput($event)"
             [class.invalid]="isFieldInvalid('cpf')"
           />
           @if (isFieldInvalid("cpf")) {
@@ -89,7 +91,7 @@
           }
         </div>
 
-        <!-- Telefone -->
+        <!-- Telefone (Com máscara aplicada) -->
         <div class="form-group">
           <label for="telefone">Telefone</label>
           <input
@@ -97,14 +99,18 @@
             type="tel"
             formControlName="telefone"
             placeholder="(11) 99999-9999"
+            maxlength="15"
+            (input)="onPhoneInput($event)"
             [class.invalid]="isFieldInvalid('telefone')"
           />
           @if (isFieldInvalid("telefone")) {
-            <span class="error-message">Informe um telefone válido</span>
+            <span class="error-message"
+              >Informe um telefone válido (ex: (11) 99999-9999)</span
+            >
           }
         </div>
 
-        <!-- Gênero (Mapeado para o ENUM do MySQL) -->
+        <!-- Gênero -->
         <div class="form-group">
           <label for="gender">Gênero</label>
           <select
@@ -123,7 +129,7 @@
           }
         </div>
 
-        <!-- Data de Nascimento (Substitui idade estática para cálculo dinâmico) -->
+        <!-- Data de Nascimento -->
         <div class="form-group">
           <label for="birth_date">Data de Nascimento</label>
           <input
@@ -137,7 +143,7 @@
           }
         </div>
 
-        <!-- Senha com Lista de Requisitos de Segurança -->
+        <!-- Senha -->
         <div class="form-group span-2">
           <label for="password">Senha</label>
           <div class="input-wrapper">
@@ -188,7 +194,6 @@
             </button>
           </div>
 
-          <!-- Feedback dinâmico de Requisitos da Senha -->
           @if (isFieldInvalid("password")) {
             @if (registerForm.get("password")?.hasError("required")) {
               <span class="error-message">Senha é obrigatória.</span>
@@ -256,7 +261,7 @@
       <h3 class="section-title">Endereço</h3>
 
       <div formGroupName="address" class="form-grid">
-        <!-- CEP (zip_code) -->
+        <!-- CEP (Com máscara aplicada) -->
         <div class="form-group">
           <label for="zip_code">CEP</label>
           <input
@@ -264,6 +269,8 @@
             type="text"
             formControlName="zip_code"
             placeholder="00000-000"
+            maxlength="9"
+            (input)="onZipCodeInput($event)"
             [class.invalid]="isFieldInvalid('zip_code', 'address')"
           />
           @if (isFieldInvalid("zip_code", "address")) {
@@ -273,7 +280,7 @@
           }
         </div>
 
-        <!-- Estado / UF (state_code) -->
+        <!-- Estado / UF -->
         <div class="form-group">
           <label for="state_code">Estado (UF)</label>
           <select
@@ -293,7 +300,7 @@
           }
         </div>
 
-        <!-- Rua e Número (street_address e number) -->
+        <!-- Rua e Número -->
         <div class="span-2 street-grid">
           <div class="form-group">
             <label for="street_address">Logradouro / Rua</label>
@@ -324,7 +331,7 @@
           </div>
         </div>
 
-        <!-- Bairro (neighborhood) -->
+        <!-- Bairro -->
         <div class="form-group">
           <label for="neighborhood">Bairro</label>
           <input
@@ -339,7 +346,7 @@
           }
         </div>
 
-        <!-- Cidade (city) -->
+        <!-- Cidade -->
         <div class="form-group">
           <label for="city">Cidade</label>
           <input
@@ -354,7 +361,7 @@
           }
         </div>
 
-        <!-- Complemento (complement) -->
+        <!-- Complemento -->
         <div class="form-group span-2">
           <label for="complement">Complemento (opcional)</label>
           <input

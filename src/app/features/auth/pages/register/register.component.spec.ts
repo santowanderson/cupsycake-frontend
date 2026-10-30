@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter, Router } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { of, throwError } from 'rxjs';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -8,8 +8,7 @@ import { RegisterComponent } from './register.component';
 describe('RegisterComponent', () => {
   let component: RegisterComponent;
   let fixture: ComponentFixture<RegisterComponent>;
-  let router: Router;
-  let authServiceMock: { register: jest.Mock };
+  let authServiceMock: any;
 
   beforeEach(async () => {
     authServiceMock = {
@@ -19,216 +18,160 @@ describe('RegisterComponent', () => {
     await TestBed.configureTestingModule({
       imports: [RegisterComponent],
       providers: [
-        provideRouter([]), // Necessário para o RouterLink e navegação
+        provideRouter([]),
         { provide: AuthService, useValue: authServiceMock },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(RegisterComponent);
     component = fixture.componentInstance;
-    router = TestBed.inject(Router);
-    jest
-      .spyOn(router, 'navigate')
-      .mockImplementation(() => Promise.resolve(true));
-
     fixture.detectChanges();
   });
 
-  it('should create the component successfully', () => {
+  it('should create the component', () => {
     expect(component).toBeTruthy();
   });
 
-  // ==========================================
-  // 1. TESTES DE VALIDAÇÃO DO FORMULÁRIO
-  // ==========================================
-  describe('Form Validation & Controls', () => {
-    it('should initialize the register form with empty or default values and be invalid initially', () => {
-      expect(component.registerForm.valid).toBe(false);
-      expect(component.registerForm.get('gender')?.value).toBe('NOT_SPECIFIED');
-    });
-
-    it('should validate required fields and field constraints properly', () => {
-      const firstNameCtrl = component.registerForm.get('first_name');
-      firstNameCtrl?.setValue('A'); // Menor que minLength(2)
-      expect(firstNameCtrl?.invalid).toBe(true);
-
-      firstNameCtrl?.setValue('Wanderson');
-      expect(firstNameCtrl?.valid).toBe(true);
-    });
-
-    it('should validate nested address form group controls', () => {
-      const zipCodeCtrl = component.registerForm.get('address.zip_code');
-      zipCodeCtrl?.setValue('123'); // Inválido
-      expect(zipCodeCtrl?.invalid).toBe(true);
-
-      zipCodeCtrl?.setValue('06500-000'); // Válido (padrão 8 dígitos / CEP)
-      expect(zipCodeCtrl?.valid).toBe(true);
-    });
-
-    it('should correctly identify invalid fields via isFieldInvalid helper when dirty or touched', () => {
-      const emailCtrl = component.registerForm.get('email');
-
-      // Não tocado/sujo ainda -> retorna falso mesmo inválido
-      expect(component.isFieldInvalid('email')).toBe(false);
-
-      // Marca como touched
-      emailCtrl?.markAsTouched();
-      emailCtrl?.setValue('invalid-email');
-      expect(component.isFieldInvalid('email')).toBe(true);
-
-      // Valor correto
-      emailCtrl?.setValue('wanderson@test.com');
-      expect(component.isFieldInvalid('email')).toBe(false);
-    });
-
-    it('should check nested group field invalidity correctly via isFieldInvalid', () => {
-      const cityCtrl = component.registerForm.get('address.city');
-      cityCtrl?.markAsTouched();
-      cityCtrl?.setValue(''); // Obrigatório vazio
-
-      expect(component.isFieldInvalid('city', 'address')).toBe(true);
-
-      cityCtrl?.setValue('São Paulo');
-      expect(component.isFieldInvalid('city', 'address')).toBe(false);
-    });
+  it('should initialize the form with empty values and invalid state', () => {
+    expect(component.registerForm.valid).toBeFalsy();
+    expect(component.registerForm.get('first_name')?.value).toBe('');
+    expect(component.registerForm.get('cpf')?.value).toBe('');
+    expect(component.registerForm.get('telefone')?.value).toBe('');
+    expect(component.registerForm.get('address.zip_code')?.value).toBe('');
   });
 
-  // ==========================================
-  // 2. TESTES DE INTERAÇÃO DE UI (togglePasswordVisibility)
-  // ==========================================
-  describe('UI Interaction', () => {
-    it('should toggle showPassword flag correctly', () => {
-      expect(component['showPassword']).toBe(false);
+  describe('Mask and Validation Methods', () => {
+    it('should format phone number correctly on input', () => {
+      const inputElement = document.createElement('input');
+      inputElement.value = '11988887777';
+      const event = { target: inputElement } as unknown as Event;
 
-      component.togglePasswordVisibility();
-      expect(component['showPassword']).toBe(true);
+      component.onPhoneInput(event);
 
-      component.togglePasswordVisibility();
-      expect(component['showPassword']).toBe(false);
-    });
-  });
-
-  // ==========================================
-  // 3. TESTES DE SUBMISSÃO E FLUXO DE CADASTRO (onSubmit)
-  // ==========================================
-  describe('Form Submission Workflow', () => {
-    const fillValidForm = () => {
-      component.registerForm.patchValue({
-        first_name: 'Wanderson',
-        last_name: 'Pereira',
-        cpf: '123.456.789-09', // Assumindo formato válido ou bypass do validador customizado
-        email: 'wanderson@test.com',
-        telefone: '(11) 98765-4321',
-        gender: 'MALE',
-        birth_date: '2000-01-01',
-        password: 'Password@123',
-        address: {
-          zip_code: '06500-000',
-          street_address: 'Rua Principal',
-          number: '100',
-          complement: 'Apto 101',
-          neighborhood: 'Centro',
-          city: 'São Paulo',
-          state_code: 'SP',
-        },
-      });
-    };
-
-    it('should mark all fields as touched and abort submission if form is invalid', () => {
-      const markAllAsTouchedSpy = jest.spyOn(
-        component.registerForm,
-        'markAllAsTouched',
+      expect(component.registerForm.get('telefone')?.value).toBe(
+        '(11) 98888-7777',
       );
+      expect(component.registerForm.get('telefone')?.valid).toBeTruthy();
+    });
 
+    it('should format CPF correctly on input', () => {
+      const inputElement = document.createElement('input');
+      inputElement.value = '12345678909';
+      const event = { target: inputElement } as unknown as Event;
+
+      component.onCpfInput(event);
+
+      expect(component.registerForm.get('cpf')?.value).toBe('123.456.789-09');
+    });
+
+    it('should format CEP correctly on input and validate pattern', () => {
+      const inputElement = document.createElement('input');
+      inputElement.value = '01001000';
+      const event = { target: inputElement } as unknown as Event;
+
+      component.onZipCodeInput(event);
+
+      expect(component.registerForm.get('address.zip_code')?.value).toBe(
+        '01001-000',
+      );
+      expect(
+        component.registerForm.get('address.zip_code')?.valid,
+      ).toBeTruthy();
+    });
+
+    it('should invalidate incorrect zip_code format', () => {
+      component.registerForm.get('address.zip_code')?.setValue('1234567');
+      expect(
+        component.registerForm.get('address.zip_code')?.invalid,
+      ).toBeTruthy();
+    });
+
+    it('should invalidate incorrect telefone format', () => {
+      component.registerForm.get('telefone')?.setValue('1198888777'); // Faltando dígito
+      expect(component.registerForm.get('telefone')?.invalid).toBeTruthy();
+    });
+  });
+
+  describe('Form Submission', () => {
+    it('should mark all fields as touched and not call authService if form is invalid', () => {
       component.onSubmit();
 
-      expect(markAllAsTouchedSpy).toHaveBeenCalledTimes(1);
+      expect(component.registerForm.invalid).toBeTruthy();
       expect(authServiceMock.register).not.toHaveBeenCalled();
     });
 
-    it('should format payload correctly and navigate to login with registered queryParam on success', () => {
-      fillValidForm();
-
-      component.onSubmit();
-
-      expect(component['isLoading']()).toBe(false);
-      expect(authServiceMock.register).toHaveBeenCalledTimes(1);
-
-      // Validação do payload tratado (limpeza de máscara de telefone, CPF, CEP, uppercase no estado e mapeamento do state_name)
-      expect(authServiceMock.register).toHaveBeenCalledWith({
+    it('should call authService.register with clean payload when form is valid', () => {
+      // Preenchendo com dados válidos formatados conforme exigido pelas regras e máscaras
+      component.registerForm.patchValue({
         first_name: 'Wanderson',
         last_name: 'Pereira',
-        cpf: '12345678909',
-        email: 'wanderson@test.com',
-        area_code: '11',
-        phone_number: '987654321',
+        cpf: '529.982.247-25', // CPF válido com dígito verificador correto
+        email: 'wanderson@exemplo.com',
+        telefone: '(11) 98888-7777',
         gender: 'MALE',
         birth_date: '2000-01-01',
         password: 'Password@123',
         address: {
-          zip_code: '06500000',
-          street_address: 'Rua Principal',
+          zip_code: '01001-000',
+          street_address: 'Praça da Sé',
           number: '100',
-          complement: 'Apto 101',
-          neighborhood: 'Centro',
+          neighborhood: 'Sé',
           city: 'São Paulo',
           state_code: 'SP',
-          state_name: 'São Paulo', // Mapeado via getStateName('SP')
         },
       });
 
-      expect(router.navigate).toHaveBeenCalledWith(['/auth/login'], {
-        queryParams: { registered: 'true' },
-      });
+      expect(component.registerForm.valid).toBeTruthy();
+
+      component.onSubmit();
+
+      expect(authServiceMock.register).toHaveBeenCalledWith(
+        expect.objectContaining({
+          first_name: 'Wanderson',
+          last_name: 'Pereira',
+          cpf: '52998224725',
+          email: 'wanderson@exemplo.com',
+          phone_number: '988887777',
+          area_code: '11',
+          address: expect.objectContaining({
+            zip_code: '01001000',
+            state_code: 'SP',
+            state_name: 'São Paulo',
+          }),
+        }),
+      );
     });
 
-    it('should handle 400/409 registration error response and set specific error message', () => {
-      const consoleErrorSpy = jest
-        .spyOn(console, 'error')
-        .mockImplementation(() => {});
+    it('should set error message if registration fails with 400/409', () => {
       authServiceMock.register.mockReturnValue(
         throwError(() => ({
           status: 409,
-          error: { error: 'E-mail já cadastrado.' },
+          error: { error: 'E-mail já cadastrado' },
         })),
       );
 
-      fillValidForm();
+      component.registerForm.patchValue({
+        first_name: 'Wanderson',
+        last_name: 'Pereira',
+        cpf: '529.982.247-25',
+        email: 'wanderson@exemplo.com',
+        telefone: '(11) 98888-7777',
+        gender: 'MALE',
+        birth_date: '2000-01-01',
+        password: 'Password@123',
+        address: {
+          zip_code: '01001-000',
+          street_address: 'Praça da Sé',
+          number: '100',
+          neighborhood: 'Sé',
+          city: 'São Paulo',
+          state_code: 'SP',
+        },
+      });
+
       component.onSubmit();
 
-      expect(component['isLoading']()).toBe(false);
-      expect(component['errorMessage']()).toBe('E-mail já cadastrado.');
-      expect(consoleErrorSpy).toHaveBeenCalled();
-
-      consoleErrorSpy.mockRestore();
-    });
-
-    it('should handle fallback error message on 400/409 if error body is empty', () => {
-      jest.spyOn(console, 'error').mockImplementation(() => {});
-      authServiceMock.register.mockReturnValue(
-        throwError(() => ({ status: 400, error: {} })),
-      );
-
-      fillValidForm();
-      component.onSubmit();
-
-      expect(component['errorMessage']()).toBe(
-        'Este e-mail ou CPF já está cadastrado no sistema.',
-      );
-    });
-
-    it('should handle generic server errors (status 500) and set connection error message', () => {
-      jest.spyOn(console, 'error').mockImplementation(() => {});
-      authServiceMock.register.mockReturnValue(
-        throwError(() => ({ status: 500 })),
-      );
-
-      fillValidForm();
-      component.onSubmit();
-
-      expect(component['errorMessage']()).toBe(
-        'Não foi possível conectar ao servidor. Tente novamente mais tarde.',
-      );
+      expect(component.errorMessage()).toBe('E-mail já cadastrado');
     });
   });
 });

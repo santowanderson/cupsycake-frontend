@@ -24,7 +24,7 @@ export class RegisterComponent {
 
   // Estados reativos com Signals para controle de UI
   protected isLoading = signal<boolean>(false);
-  protected errorMessage = signal<string | null>(null);
+  errorMessage = signal<string | null>(null);
 
   showPassword = false;
 
@@ -37,16 +37,21 @@ export class RegisterComponent {
       '',
       [
         Validators.required,
-        Validators.pattern(/^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/),
+        // Valida rigorosamente o formato de telefone com 10 ou 11 dígitos: (xx) xxxx-xxxx ou (xx) xxxxx-xxxx
+        Validators.pattern(/^\(\d{2}\)\s\d{4,5}-\d{4}$/),
       ],
     ],
     gender: ['NOT_SPECIFIED', [Validators.required]],
-    birth_date: ['', [Validators.required]], // Mapeado para bater com o banco (substitui idade estática)
+    birth_date: ['', [Validators.required]],
     password: ['', [Validators.required, CustomValidators.passwordValidator()]],
     address: this.fb.group({
       zip_code: [
         '',
-        [Validators.required, Validators.pattern(/^\d{5}-?\d{3}$/)],
+        [
+          Validators.required,
+          // Valida rigorosamente o formato do CEP: 00000-000
+          Validators.pattern(/^\d{5}-\d{3}$/),
+        ],
       ],
       street_address: ['', [Validators.required]],
       number: ['', [Validators.required]],
@@ -72,7 +77,54 @@ export class RegisterComponent {
     return !!(control && control.invalid && (control.dirty || control.touched));
   }
 
-  // Mapeador auxiliar de estados do Brasil para preencher o state_name exigido pelo banco
+  // --- MÉTODOS DE MÁSCARA ---
+
+  onPhoneInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let value = input.value.replace(/\D/g, '');
+    if (value.length > 11) value = value.substring(0, 11);
+
+    if (value.length > 10) {
+      // Formato Celular: (xx) xxxxx-xxxx
+      value = value.replace(/^(\d{2})(\d{5})(\d{4}).*/, '($1) $2-$3');
+    } else if (value.length > 6) {
+      // Formato Fixo / Parcial: (xx) xxxx-xxxx
+      value = value.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
+    } else if (value.length > 2) {
+      value = value.replace(/^(\d{2})(\d{0,5})/, '($1) $2');
+    } else if (value.length > 0) {
+      value = value.replace(/^(\d*)/, '($1');
+    }
+
+    this.registerForm.get('telefone')?.setValue(value, { emitEvent: false });
+  }
+
+  onCpfInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let value = input.value.replace(/\D/g, '');
+    if (value.length > 11) value = value.substring(0, 11);
+
+    value = value
+      .replace(/^(\d{3})(\d)/, '$1.$2')
+      .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+      .replace(/\.(\d{3})(\d{1,2})$/, '.$1-$2');
+
+    this.registerForm.get('cpf')?.setValue(value, { emitEvent: false });
+  }
+
+  onZipCodeInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let value = input.value.replace(/\D/g, '');
+    if (value.length > 8) value = value.substring(0, 8);
+
+    value = value.replace(/^(\d{5})(\d)/, '$1-$2');
+
+    this.registerForm
+      .get('address.zip_code')
+      ?.setValue(value, { emitEvent: false });
+  }
+
+  // Mapeador auxiliar de estados do Brasil
   private getStateName(uf: string): string {
     const states: Record<string, string> = {
       SP: 'São Paulo',
@@ -83,7 +135,6 @@ export class RegisterComponent {
       SC: 'Santa Catarina',
       RS: 'Rio Grande do Sul',
       BA: 'Bahia',
-      // Adicione outros estados conforme necessário ou utilize a sigla como fallback
     };
     return states[uf.toUpperCase()] || uf.toUpperCase();
   }
@@ -103,7 +154,6 @@ export class RegisterComponent {
     const phoneNumber = cleanPhone.substring(2);
     const stateCode = raw.address.state_code.toUpperCase();
 
-    // Montagem do payload alinhado exatamente ao backend Node.js / MySQL
     const registerPayload = {
       first_name: raw.first_name.trim(),
       last_name: raw.last_name.trim(),
@@ -131,7 +181,6 @@ export class RegisterComponent {
     this.authService.register(registerPayload).subscribe({
       next: () => {
         this.isLoading.set(false);
-        // Redireciona para o login após cadastro bem-sucedido
         this.router.navigate(['/auth/login'], {
           queryParams: { registered: 'true' },
         });
