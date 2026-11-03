@@ -1,12 +1,12 @@
 @if (modalService.isOpen()) {
   <div
     class="modal-backdrop"
-    [class.closing]="isClosing"
+    [class.closing]="modalService.isClosing()"
     (click)="onBackdropClick()"
   >
     <div
       class="modal-container"
-      [class.closing]="isClosing"
+      [class.closing]="modalService.isClosing()"
       (click)="$event.stopPropagation()"
     >
       <!-- Botão de Fechar -->

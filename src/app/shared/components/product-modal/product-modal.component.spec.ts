@@ -17,23 +17,22 @@ describe('ProductModalComponent', () => {
   let modalServiceMock: {
     close: jest.Mock;
     isOpen: jest.Mock;
+    isClosing: jest.Mock;
     selectedProduct: jest.Mock;
   };
   let productServiceMock: { getImageUrl: jest.Mock };
 
   beforeEach(async () => {
-    // Ativa fake timers para controlar o setTimeout de fechamento do modal de forma previsível
-    jest.useFakeTimers();
-
     modalServiceMock = {
       close: jest.fn(),
       isOpen: jest.fn().mockReturnValue(true),
+      isClosing: jest.fn().mockReturnValue(false),
       selectedProduct: jest.fn().mockReturnValue({
         id: 1,
         name: 'Cupcake de Chocolate',
         price: 10,
         description: 'Delicioso cupcake recheado',
-      }), // Mock do signal/método selectedProduct utilizado no template
+      }),
     };
 
     productServiceMock = {
@@ -56,8 +55,7 @@ describe('ProductModalComponent', () => {
   });
 
   afterEach(() => {
-    // Restaura os timers reais após cada teste
-    jest.useRealTimers();
+    jest.clearAllMocks();
   });
 
   it('should create the component successfully', () => {
@@ -65,24 +63,12 @@ describe('ProductModalComponent', () => {
   });
 
   // ==========================================
-  // 1. TESTES DE FECHAMENTO E ANIMAÇÃO (closeModal)
+  // 1. TESTES DE AÇÃO DE FECHAMENTO (closeModal)
   // ==========================================
-  describe('Modal Closing & Animations', () => {
-    it('should set isClosing to true immediately when closeModal is called', () => {
+  describe('Modal Closing Actions', () => {
+    it('should delegate closeModal call directly to modalService.close()', () => {
       component.closeModal();
-      expect(component.isClosing).toBe(true);
-    });
-
-    it('should call modalService.close() and reset isClosing after 250ms timeout', () => {
-      component.closeModal();
-      expect(component.isClosing).toBe(true);
-      expect(modalServiceMock.close).not.toHaveBeenCalled();
-
-      // Avança o tempo do temporizador em 250ms
-      jest.advanceTimersByTime(250);
-
       expect(modalServiceMock.close).toHaveBeenCalledTimes(1);
-      expect(component.isClosing).toBe(false);
     });
   });
 
@@ -96,7 +82,6 @@ describe('ProductModalComponent', () => {
       component.onBackdropClick();
 
       expect(closeModalSpy).toHaveBeenCalledTimes(1);
-      expect(component.isClosing).toBe(true);
     });
   });
 

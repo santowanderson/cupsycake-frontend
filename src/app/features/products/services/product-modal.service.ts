@@ -4,34 +4,40 @@ import { Product } from '../../../core/models/product.model';
 @Injectable({
   providedIn: 'root',
 })
-export class ProductModalService {
+class ProductModalService {
   private readonly _selectedProduct = signal<Product | null>(null);
   private readonly _isOpen = signal<boolean>(false);
+  private readonly _isClosing = signal<boolean>(false);
 
   readonly selectedProduct = this._selectedProduct.asReadonly();
   readonly isOpen = this._isOpen.asReadonly();
+  readonly isClosing = this._isClosing.asReadonly();
 
   open(product: Product): void {
+    // Se já estiver fechando ou aberto, garante reset limpo antes de abrir o novo
+    this._isClosing.set(false);
     this._selectedProduct.set(product);
     this._isOpen.set(true);
     this.toggleBodyScroll(true);
   }
 
   close(): void {
-    this._isOpen.set(false);
-    this.toggleBodyScroll(false);
+    if (this._isClosing() || !this._isOpen()) return;
 
-    // Limpa o produto após a animação de fechamento terminar (300ms)
+    this._isClosing.set(true);
+
+    // Tempo correspondente à duração máxima da animação CSS de fechamento (ex: 250ms-300ms)
     setTimeout(() => {
+      this._isOpen.set(false);
+      this._isClosing.set(false);
       this._selectedProduct.set(null);
-    }, 300);
+      this.toggleBodyScroll(false);
+    }, 250);
   }
 
   private toggleBodyScroll(lock: boolean): void {
-    if (lock) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+    document.body.style.overflow = lock ? 'hidden' : '';
   }
 }
+
+export { ProductModalService };

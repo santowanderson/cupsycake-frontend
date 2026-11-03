@@ -14,14 +14,8 @@ export class ProductModalComponent {
   readonly modalService = inject(ProductModalService);
   private readonly productService = inject(ProductService);
 
-  isClosing = false;
-
   closeModal(): void {
-    this.isClosing = true;
-    setTimeout(() => {
-      this.modalService.close();
-      this.isClosing = false;
-    }, 250);
+    this.modalService.close();
   }
 
   onBackdropClick(): void {
